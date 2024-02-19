@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Text Overlay Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/react/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('ZURCH.ttf') format('truetype');
+        }
+        #sourceImage {
+            display: none;
+        }
+        #imageCanvas {
+            max-width: 50%;
+            height: auto;
+            width: auto;
+            display: block;
+            border: 1px solid black;
+        }
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #999;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 300;
+            line-height: 1.5;
+        }
+    </style>
+        <script>
+            function switchLanguage(lang) {
+                document.body.className = "bg-gray-100 " + lang; // Přepne třídu na <body> pro určení jazyka
+                // Aktualizace textů
+                document.getElementById('title').textContent = lang === 'en' ? 'Tool for making bus station sign in ÚK region' : 'Nástroj pro vytvoření označení stanice autobusové na území ÚK';
+                document.getElementById('mainTextLabel').textContent = lang === 'en' ? 'Main Text:' : 'Hlavní text:';
+                document.getElementById('mainText').placeholder = lang === 'en' ? 'Enter main text' : 'Zadejte hlavní text';
+                document.getElementById('numLinksLabel').textContent = lang === 'en' ? 'Number of Lines:' : 'Počet linek:';
+                document.getElementById('generateLinksButton').textContent = lang === 'en' ? 'Generate Lines' : 'Generovat linky';
+                document.getElementById('updateImageButton').textContent = lang === 'en' ? 'Update Image' : 'Aktualizovat obrázek';
+                document.getElementById('clearTextButton').textContent = lang === 'en' ? 'Clear Text' : 'Vymazat text';
+                document.getElementById('visitLink').textContent = lang === 'en' ? 'Visit Odjezdy.online' : 'Navstivte Odjezdy.online';
+                // Další texty pro aktualizaci...
+            }
+        </script>
+</head>
+<body class="bg-gray-100" onload="switchLanguage('en')">
+    <header class="bg-white shadow-md py-4">
+        <div class="container mx-auto px-8">
+            <div class="flex items-center justify-between">
+                <div class="text-lg font-semibold text-gray-700">
+                    <a href="/" id="title" class="hover:text-gray-900">Tool for making bus station sign in ÚK region</a>
+                </div>
+                <div>
+                    <a href="https://odjezdy.online" id="visitLink" target="_blank" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Visit Odjezdy.online</a>
+                </div>
+                <div>
+                    <button onclick="switchLanguage('en')">EN</button>
+                    <button onclick="switchLanguage('cs')">CZ</button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container mx-auto p-8">
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <img id="sourceImage" src="oznacnik_uk.png" alt="Placeholder image for the source"/>
+            <div class="mb-4">
+                <label id="mainTextLabel" for="mainText" class="block text-gray-700 text-sm font-bold mb-2">Main Text:</label>
+                <input type="text" id="mainText" placeholder="Enter main text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
+            </div>
+            <div class="mb-4">
+                <label id="numLinksLabel" for="numLinks" class="block text-gray-700 text-sm font-bold mb-2">Number of Links:</label>
+                <input type="number" id="numLinks" value="0" min="0" max="6" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
+                <button id="generateLinksButton" onclick="generateLinkInputs()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-3">Generate Links</button>
+            </div>
+            <div id="linkTexts" class="mb-4"></div>
+            <div class="flex justify-between mb-4">
+                <button id="updateImageButton" onclick="updateCanvas()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Update Image</button>
+                <button id="clearTextButton" onclick="resetText()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Clear Text</button>
+            </div>
+            <canvas id="imageCanvas"></canvas>
+        </div>
+    </div>
+    <footer class="bg-gray-800 text-white text-center p-4 mt-8 fixed bottom-0">
+        <p>&copy; <script>document.write(new Date().getFullYear())</script> :: Made with <i class="fas fa-heart"></i> by <a href="https://twitter.com/plainrock127" target="_blank" class="text-blue-500 hover:text-blue-700">Vlastimil Novotny</a> with help from OpenAI's ChatGPT 4 :: Donate via <a href="https://www.paypal.com/donate/?hosted_button_id=PYSTCMCJYUR74" target="_blank" class="text-blue-500 hover:text-blue-700">PayPal</a> or <a href="https://ko-fi.com/vlastimilnovotny" target="_blank" class="text-blue-500 hover:text-blue-700">Ko-fi</a></p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
